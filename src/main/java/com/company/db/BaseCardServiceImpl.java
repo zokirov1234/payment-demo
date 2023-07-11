@@ -11,7 +11,6 @@ import java.util.List;
 public class BaseCardServiceImpl implements Base, BaseCardService {
     @Override
     public int createCard(CardDao cardDao) throws SQLException {
-        boolean isExecuted = false;
         int generatedId = -1;
         final Connection connection = getConnection();
         final PreparedStatement preparedStatement
@@ -89,6 +88,50 @@ public class BaseCardServiceImpl implements Base, BaseCardService {
 
 
         return card;
+    }
+
+    @Override
+    public Card getCardByCardIdAndUserId(String cardId, int userId) throws SQLException {
+        Card card = new Card();
+        final Connection connection = getConnection();
+        final PreparedStatement preparedStatement
+                = connection.prepareStatement("select id,card_id, balance,user_id from cards where card_id = ? and user_id  = ?");
+
+        preparedStatement.setString(1, cardId);
+        preparedStatement.setInt(2,userId);
+        ResultSet resultSet = preparedStatement.executeQuery();
+
+        while (resultSet.next()) {
+            int id = resultSet.getInt("id");
+            String cardIds = resultSet.getString("card_id");
+            double balance = resultSet.getDouble("balance");
+            userId = resultSet.getInt("user_id");
+            card.setCardId(cardIds);
+            card.setUserId(userId);
+            card.setBalance(balance);
+            card.setId(id);
+        }
+        resultSet.close();
+        preparedStatement.close();
+        connection.close();
+
+
+        return card;
+    }
+
+    @Override
+    public boolean changeBalanceByCardId(String cardId, double balance) throws SQLException {
+
+        final Connection connection = getConnection();
+        final PreparedStatement preparedStatement
+                = connection.prepareStatement("update cards set balance = ? where card_id = ?");
+
+        preparedStatement.setDouble(1, balance);
+        preparedStatement.setString(2, cardId);
+
+        int i = preparedStatement.executeUpdate();
+
+        return i > 0;
     }
 
 

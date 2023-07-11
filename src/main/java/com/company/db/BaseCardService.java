@@ -13,4 +13,7 @@ public interface BaseCardService {
     List<Card> getCardByUserId(int userId) throws SQLException;
 
     Card getCardByCardId(String cardId) throws SQLException;
+    Card getCardByCardIdAndUserId(String cardId,int userId) throws SQLException;
+
+    boolean changeBalanceByCardId(String cardId, double balance) throws SQLException;
 }

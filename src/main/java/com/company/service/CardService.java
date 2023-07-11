@@ -12,4 +12,8 @@ public interface CardService {
     void getMyCards(int userId) throws SQLException;
 
     void changeCard() throws SQLException;
+
+    void converter() throws SQLException;
+
+    void withdraw() throws SQLException;
 }
