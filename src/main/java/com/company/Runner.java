@@ -1,17 +1,30 @@
 package com.company;
 
-import com.company.db.BaseUserServiceImpl;
+import com.company.model.dao.CardDao;
+import com.company.model.entity.Card;
+import com.company.model.entity.User;
 import com.company.service.AuthService;
-import com.company.service.AuthServiceImpl;
+import com.company.service.CardService;
+import com.company.service.UserService;
+
+import java.sql.SQLException;
 
 import static com.company.utils.Helper.scannerInt;
 
 public class Runner {
 
-    private final AuthService authService;
+    public static User currentUser;
+    public static Card currentCard;
 
-    public Runner(AuthService authService) {
+    private final AuthService authService;
+    private final UserService userService;
+
+    private final CardService cardService;
+
+    public Runner(AuthService authService, UserService userService, CardService cardService) {
         this.authService = authService;
+        this.userService = userService;
+        this.cardService = cardService;
     }
 
     public void initialMenu() {
@@ -27,10 +40,17 @@ public class Runner {
             option = scannerInt.nextInt();
             System.out.println();
             switch (option) {
-                case 1 :
-                    System.out.println("d");
+                case 1:
+                    System.out.println("\t\t\tLogin");
+                    if (authService.doLogin()) {
+                        try {
+                            userMenu();
+                        } catch (SQLException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
                     break;
-                case 2 :
+                case 2:
                     System.out.println("\t\t\tRegister");
                     System.out.println(authService.doRegister());
                     break;
@@ -44,5 +64,101 @@ public class Runner {
 
         }
 
+    }
+
+
+    public void userMenu() throws SQLException {
+
+        int option = -1;
+
+        while (option != 0) {
+            System.out.println("\n\t\t\t\t--- Menu ----");
+            System.out.println("1.Account details");
+            System.out.println("2.Balance");
+            System.out.println("3.Transfer");
+            System.out.println("4.Converter");
+            System.out.println("5.Withdraw");
+            System.out.println("6.Payments");
+            System.out.println("7.History");
+            System.out.println("8.Message to admin");
+            System.out.println("9.Card section");
+            System.out.println("0.Exit");
+            System.out.print("Enter option : ");
+            option = scannerInt.nextInt();
+
+            switch (option) {
+                case 1:
+                    userService.getMyAccountDetails();
+                    break;
+                case 2:
+                    if (currentCard == null) {
+                        System.out.println("There is no card selected");
+                        break;
+                    }
+                    System.out.println("Balance : " + currentCard.getBalance());
+                    break;
+                case 3:
+                    System.out.println("");
+                    break;
+                case 4:
+                    System.out.println("");
+                    break;
+                case 5:
+                    System.out.println("");
+                    break;
+                case 6:
+                    System.out.println("");
+                    break;
+                case 7:
+                    System.out.println("");
+                    break;
+                case 8:
+                    System.out.println("");
+                    break;
+                case 9:
+
+                    int opt = -1;
+
+                    while (opt != 0) {
+                        System.out.println("\n\t\t\t\t--- Card menu ---");
+                        System.out.println("1.My cards");
+                        System.out.println("2.Create card");
+                        System.out.println("3.Change card");
+                        System.out.println("4.Get current card");
+                        System.out.print("Enter option : ");
+                        opt = scannerInt.nextInt();
+
+                        switch (opt) {
+                            case 1:
+                                cardService.getMyCards(currentUser.getId());
+                                break;
+                            case 2:
+                                Card card = cardService.generateCard();
+                                if (card != null) {
+                                    System.out.println("You have been successfully created your card");
+                                    currentCard = card;
+                                }
+                                break;
+                            case 3:
+                                cardService.changeCard();
+                                break;
+                            case 4:
+                                if (currentCard == null) {
+                                    System.out.println("There is no card");
+                                    break;
+                                }
+                                System.out.println("\nCard id : " + currentCard.getCardId());
+                                System.out.println("Balance : " + currentCard.getBalance());
+                                break;
+                        }
+
+                    }
+                    break;
+                case 0:
+                    currentCard = null;
+                    currentUser = null;
+                    break;
+            }
+        }
     }
 }

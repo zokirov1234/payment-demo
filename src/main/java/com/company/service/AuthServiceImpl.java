@@ -3,10 +3,11 @@ package com.company.service;
 
 import com.company.db.BaseUserService;
 import com.company.model.dao.UserDao;
-import lombok.AllArgsConstructor;
+import com.company.model.entity.User;
 
 import java.sql.SQLException;
 
+import static com.company.Runner.currentUser;
 import static com.company.utils.Helper.scannerStr;
 
 public class AuthServiceImpl implements AuthService {
@@ -81,5 +82,38 @@ public class AuthServiceImpl implements AuthService {
         System.out.println(res);
 
         return "you have been successfully registered";
+    }
+
+    @Override
+    public boolean doLogin() {
+
+        System.out.print("Enter your phone number : ");
+        String phoneNumber = scannerStr.nextLine();
+
+        if (phoneNumber.length() != 9 && phoneNumber.length() != 12 && phoneNumber.length() != 13) {
+            System.out.println("Wrong type of phone number");
+            return false;
+        }
+
+        System.out.print("Enter your password : ");
+        String password = scannerStr.nextLine();
+
+        if (phoneNumber.length() == 9) {
+            phoneNumber = "+998" + phoneNumber;
+        } else if (phoneNumber.length() == 12) {
+            phoneNumber = "+" + phoneNumber;
+        }
+
+        try {
+            User user = baseUserService.getUserByPhoneAndPassword(phoneNumber, password);
+            if (user.getPhoneNumber() != null) {
+                currentUser = user;
+                return true;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println("Phone number or password wrong");
+        return false;
     }
 }

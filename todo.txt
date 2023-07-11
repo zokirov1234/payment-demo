@@ -1,11 +1,11 @@
 
         Authentication
 
-1. Register user
+1. Register user (+)
 
   user data - name, phone number(unique), password(length 3), secret key.
 
-2. Login
+2. Login (+)
 
   if 3 times failed in a row account blocked.
 
@@ -18,9 +18,9 @@
 
         Menu
 
-1. Account details
+1. Account details (+)
 
-2. Balance
+2. Balance (+)
 
 3. Transfer
 
@@ -34,6 +34,4 @@
 
 8. Message to admin
 
-9. Save password
-
-10. Change password
+9. Card section (+)

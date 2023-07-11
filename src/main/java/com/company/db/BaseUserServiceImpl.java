@@ -1,6 +1,7 @@
 package com.company.db;
 
 import com.company.model.dao.UserDao;
+import com.company.model.entity.User;
 import com.company.utils.Base;
 
 import java.sql.*;
@@ -26,20 +27,54 @@ public class BaseUserServiceImpl implements Base, BaseUserService {
 
         Statement statement = connection.createStatement();
 
-        // Execute the query and obtain a ResultSet
+
         ResultSet resultSet = statement.executeQuery("SELECT name,phone_number FROM users where phone_number = '" + phoneNumber + "'");
 
-        // Process the ResultSet
+
         while (resultSet.next()) {
             if (resultSet.getString("phone_number").equals(phoneNumber)) {
                 return true;
             }
         }
 
-        // Close the ResultSet, statement, and connection
+
         resultSet.close();
         statement.close();
         connection.close();
         return false;
+    }
+
+    @Override
+    public User getUserByPhoneAndPassword(String phoneNumber, String password) throws SQLException {
+
+        final Connection connection = getConnection();
+
+        PreparedStatement preparedStatement = connection.prepareStatement("SELECT id,name,phone_number,password,secret_key FROM users where phone_number = ? and password = ?");
+
+        preparedStatement.setString(1, phoneNumber);
+        preparedStatement.setString(2, password);
+
+        ResultSet resultSet = preparedStatement.executeQuery();
+        User user = new User();
+        while (resultSet.next()) {
+            String name = resultSet.getString("name");
+            int id = resultSet.getInt("id");
+            String password1 = resultSet.getString("password");
+            String secretKey = resultSet.getString("secret_key");
+            String phoneNumber1 = resultSet.getString("phone_number");
+//            currentUser = new User(id, name, phoneNumber1, password1, secretKey);
+            user.setPassword(password1);
+            user.setId(id);
+            user.setName(name);
+            user.setPhoneNumber(phoneNumber1);
+            user.setSecretWord(secretKey);
+            return user;
+        }
+
+
+        resultSet.close();
+        preparedStatement.close();
+        connection.close();
+        return user;
     }
 }
