@@ -1,0 +1,39 @@
+
+        Authentication
+
+1. Register user
+
+  user data - name, phone number(unique), password(length 3), secret key.
+
+2. Login
+
+  if 3 times failed in a row account blocked.
+
+3. Call center
+
+  show my accounts
+
+  recover account
+
+
+        Menu
+
+1. Account details
+
+2. Balance
+
+3. Transfer
+
+4. Converter
+
+5. Withdraw
+
+6. Payments
+
+7. History
+
+8. Message to admin
+
+9. Save password
+
+10. Change password
