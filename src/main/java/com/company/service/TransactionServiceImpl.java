@@ -19,7 +19,6 @@ public class TransactionServiceImpl implements TransactionService {
 
     private final BaseCardService baseCardService;
     private final BaseTransactionService baseTransactionService;
-
     private final BaseHistoryService baseHistoryService;
 
     public TransactionServiceImpl(BaseCardService baseCardService, BaseTransactionService baseTransactionService, BaseHistoryService baseHistoryService) {
@@ -36,9 +35,8 @@ public class TransactionServiceImpl implements TransactionService {
             return;
         }
 
-        System.out.print("Enter card id : ");
+        System.out.print("Enter card id: ");
         String cardId = scannerStr.nextLine();
-
 
         Card card = baseCardService.getCardByCardId(cardId);
 
@@ -48,48 +46,44 @@ public class TransactionServiceImpl implements TransactionService {
         }
 
         if (card.getCardId().equals(currentCard.getCardId())) {
-            System.out.println("You can not transfer money your current card");
+            System.out.println("You cannot transfer money to your own card");
             return;
         }
 
-        System.out.print("Enter amount : ");
-        String balance = scannerStr.nextLine();
-        double balanced = 0;
+        System.out.print("Enter amount: ");
+        String balanceStr = scannerStr.nextLine();
+        double balance = 0;
         try {
-            balanced = Double.parseDouble(balance);
+            balance = Double.parseDouble(balanceStr);
         } catch (Exception e) {
-            System.out.println("Wrong type of amount");
+            System.out.println("Invalid amount format");
             return;
         }
 
-        if (balanced > currentCard.getBalance()) {
-            System.out.println("There is no sufficient amount of money");
+        if (balance > currentCard.getBalance()) {
+            System.out.println("Insufficient funds");
             return;
         }
 
-        boolean transaction = baseTransactionService.createTransaction(new TransactionDao(currentCard.getCardId(), card.getCardId(), balanced));
-        boolean b2 = baseHistoryService.addTransaction(new HistoryDao(currentCard.getCardId(),
-                balanced, TransactionType.EXPENSE, TransactionField.TRANSFER, card.getCardId()));
-        if (transaction && b2) {
-
-
-            boolean b = baseCardService.changeBalanceByCardId(cardId, (card.getBalance() + balanced));
-
-            if (!b) {
-                System.out.println("Something went wrong");
+        boolean transactionCreated = baseTransactionService.createTransaction(new TransactionDao(currentCard.getCardId(), card.getCardId(), balance));
+        boolean historyAdded = baseHistoryService.addTransaction(new HistoryDao(currentCard.getCardId(), balance, TransactionType.EXPENSE, TransactionField.TRANSFER, card.getCardId()));
+        if (transactionCreated && historyAdded) {
+            boolean balanceUpdated = baseCardService.changeBalanceByCardId(cardId, (card.getBalance() + balance));
+            if (!balanceUpdated) {
+                System.out.println("Something went wrong while updating balance");
                 return;
             }
-            currentCard.setBalance(currentCard.getBalance() - balanced);
-            boolean b1 = baseCardService.changeBalanceByCardId(currentCard.getCardId(), currentCard.getBalance());
-
-            if (b1) {
-                System.out.println("Successfully transferred");
+            currentCard.setBalance(currentCard.getBalance() - balance);
+            boolean senderBalanceUpdated = baseCardService.changeBalanceByCardId(currentCard.getCardId(), currentCard.getBalance());
+            if (senderBalanceUpdated) {
+                System.out.println("Transfer successful");
+                return;
+            } else {
+                currentCard.setBalance(currentCard.getBalance() + balance);
+                System.out.println("Something went wrong while updating sender's balance");
                 return;
             }
-            currentCard.setBalance(currentCard.getBalance() + balanced);
-            System.out.println("Something went wrong");
-            return;
         }
-        System.out.println("Something went wrong");
+        System.out.println("Something went wrong while creating transaction or adding history");
     }
 }

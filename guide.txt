@@ -1,0 +1,71 @@
+Firstly run tables sql file (/resources)
+
+1. Register
+
+2. Login (if 3 times failed your account has been blocked and you need to recover it from call center)
+
+3. Menu
+
+After login you need to set card from card section if you have card(s)
+
+4. Account details
+
+Change password requires old password
+
+5. Balance
+
+Current card balance. You can set current card from card section
+
+6. Transfer
+
+You can transfer any card except current card and you can not transfer insufficient amount of money(transferMoney>balance)
+
+7. Converter
+
+You can see your balance in other type of currencies (USD,EURO,RUBLE)
+
+8. Withdraw
+
+You can withdraw from your current card except insufficient amount of money(withdrawMoney>balance)
+
+9. History
+
+   1. All cards' history
+
+     You can see all of your transaction history even someone transfer money to your card
+     It is not required set current card
+
+   2. Show current card's history
+
+     You can see current card history income and expenses
+
+   3. Show expenses
+
+   4. Show incomes
+
+   5. Show transactions
+
+10. Card section
+
+   1. My cards
+
+      You can see all of your card
+
+   2. Create card
+
+      You can create new card and it is not limited and it requires your secret key
+
+   3. Set card
+
+      Set card as current card
+
+   4. Get current card
+
+      See current card
+
+11. Call center
+
+   1. Recover account
+
+
+finished.

@@ -1,6 +1,5 @@
 package com.company.service;
 
-
 import com.company.db.BaseUserService;
 import com.company.model.dao.UserDao;
 import com.company.model.entity.User;
@@ -18,25 +17,21 @@ public class AuthServiceImpl implements AuthService {
         this.baseUserService = baseUserService;
     }
 
-
     @Override
     public String doRegister() {
-
-        System.out.print("Enter your name : ");
+        System.out.print("Enter your name: ");
         String name = scannerStr.nextLine().trim();
 
-        if (name.length() < 1) {
-            return "name length must be greater than 0";
+        if (name.isEmpty()) {
+            return "Name must not be empty";
         }
 
-        System.out.print("Enter your phone number : ");
+        System.out.print("Enter your phone number: ");
         String phoneNumber = scannerStr.nextLine().trim();
 
         if (phoneNumber.length() != 9 && phoneNumber.length() != 12 && phoneNumber.length() != 13) {
-            return "phone number length must be 9 or 12 or 13";
+            return "Phone number length must be 9, 12, or 13";
         }
-
-        //check phone number is exists
 
         System.out.print("Enter your password : ");
         String password = scannerStr.nextLine();
@@ -64,56 +59,71 @@ public class AuthServiceImpl implements AuthService {
         try {
             boolean userByPhoneNumber = baseUserService.getUserByPhoneNumber(phoneNumber);
             if (userByPhoneNumber) {
-                return "this phone already registered";
+                return "This phone number is already registered";
             }
-
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
 
-
-        boolean res;
+        // Perform the registration
         try {
-            res = baseUserService.addUser(new UserDao(name, phoneNumber, password, secretWord));
+            boolean res = baseUserService.addUser(new UserDao(name, phoneNumber, password, secretWord));
+            if (res) {
+                return "You have been successfully registered";
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
 
-        System.out.println(res);
-
-        return "you have been successfully registered";
+        return "Failed to register. Please try again.";
     }
 
     @Override
-    public boolean doLogin() {
+    public boolean doLogin() throws SQLException {
+        String phone = "";
+        for (int i = 0; i < 3; i++) {
+            System.out.print("Enter your phone number: ");
+            String phoneNumber = scannerStr.nextLine();
 
-        System.out.print("Enter your phone number : ");
-        String phoneNumber = scannerStr.nextLine();
+            if (phoneNumber.length() != 9 && phoneNumber.length() != 12 && phoneNumber.length() != 13) {
+                System.out.println("Wrong type of phone number");
+                return false;
+            }
 
-        if (phoneNumber.length() != 9 && phoneNumber.length() != 12 && phoneNumber.length() != 13) {
-            System.out.println("Wrong type of phone number");
+            System.out.print("Enter your password: ");
+            String password = scannerStr.nextLine();
+
+            if (phoneNumber.length() == 9) {
+                phoneNumber = "+998" + phoneNumber;
+            } else if (phoneNumber.length() == 12) {
+                phoneNumber = "+" + phoneNumber;
+            }
+            phone = phoneNumber;
+
+            try {
+                User user = baseUserService.getUserByPhoneAndPassword(phoneNumber, password);
+                if (user.getPhoneNumber() != null) {
+                    if (!user.isActive()) {
+                        System.out.println("Your account is blocked. You need to recover it");
+                        return false;
+                    }
+                    currentUser = user;
+                    return true;
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+
+            System.out.println("Phone number or password is incorrect");
+            System.out.println("You have " + (2 - i) + " attempts left");
+        }
+
+        if (baseUserService.blockUserByPhoneNumber(phone)) {
+            System.out.println("Your account has been blocked");
             return false;
         }
 
-        System.out.print("Enter your password : ");
-        String password = scannerStr.nextLine();
-
-        if (phoneNumber.length() == 9) {
-            phoneNumber = "+998" + phoneNumber;
-        } else if (phoneNumber.length() == 12) {
-            phoneNumber = "+" + phoneNumber;
-        }
-
-        try {
-            User user = baseUserService.getUserByPhoneAndPassword(phoneNumber, password);
-            if (user.getPhoneNumber() != null) {
-                currentUser = user;
-                return true;
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        System.out.println("Phone number or password wrong");
+        System.out.println("Failed to log in. Please try again.");
         return false;
     }
 }

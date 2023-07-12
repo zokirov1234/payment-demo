@@ -9,9 +9,7 @@
 
   if 3 times failed in a row account blocked.
 
-3. Call center
-
-  show my accounts
+3. Call center (+)
 
   recover account
 
@@ -22,16 +20,15 @@
 
 2. Balance (+)
 
-3. Transfer
+3. Transfer (+)
 
-4. Converter
+4. Converter (+)
 
-5. Withdraw
+5. Withdraw (+)
 
-6. Payments
+6. Payments (+)
 
-7. History
+7. Card section (+)
 
-8. Message to admin
 
-9. Card section (+)
+// block account, recover account (+)

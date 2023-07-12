@@ -1,8 +1,10 @@
 package com.company.service;
 
+import java.sql.SQLException;
+
 public interface AuthService {
 
     String doRegister();
 
-    boolean doLogin();
+    boolean doLogin() throws SQLException;
 }

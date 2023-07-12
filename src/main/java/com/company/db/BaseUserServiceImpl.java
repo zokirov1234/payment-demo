@@ -49,7 +49,7 @@ public class BaseUserServiceImpl implements Base, BaseUserService {
 
         final Connection connection = getConnection();
 
-        PreparedStatement preparedStatement = connection.prepareStatement("SELECT id,name,phone_number,password,secret_key FROM users where phone_number = ? and password = ?");
+        PreparedStatement preparedStatement = connection.prepareStatement("SELECT id,name,phone_number,password,secret_key,is_active FROM users where phone_number = ? and password = ?");
 
         preparedStatement.setString(1, phoneNumber);
         preparedStatement.setString(2, password);
@@ -62,12 +62,13 @@ public class BaseUserServiceImpl implements Base, BaseUserService {
             String password1 = resultSet.getString("password");
             String secretKey = resultSet.getString("secret_key");
             String phoneNumber1 = resultSet.getString("phone_number");
-//            currentUser = new User(id, name, phoneNumber1, password1, secretKey);
+            boolean isActive = resultSet.getBoolean("is_active");
             user.setPassword(password1);
             user.setId(id);
             user.setName(name);
             user.setPhoneNumber(phoneNumber1);
             user.setSecretWord(secretKey);
+            user.setActive(isActive);
             return user;
         }
 
@@ -76,5 +77,61 @@ public class BaseUserServiceImpl implements Base, BaseUserService {
         preparedStatement.close();
         connection.close();
         return user;
+    }
+
+    @Override
+    public boolean blockUserByPhoneNumber(String phoneNumber) throws SQLException {
+        final Connection connection = getConnection();
+        final PreparedStatement preparedStatement
+                = connection.prepareStatement("UPDATE users SET is_active = FALSE WHERE phone_number = ?");
+        preparedStatement.setString(1, phoneNumber);
+
+        int rowsAffected = preparedStatement.executeUpdate();
+
+        preparedStatement.close();
+        connection.close();
+
+        return rowsAffected > 0;
+    }
+
+    @Override
+    public User getUserByPhoneNumberAndSecretWord(String phoneNumber, String secretWord) throws SQLException {
+        final Connection connection = getConnection();
+        final PreparedStatement preparedStatement
+                = connection.prepareStatement("SELECT id,name,phone_number,password,secret_key,is_active FROM users where phone_number = ? and secret_key = ?");
+        preparedStatement.setString(1, phoneNumber);
+        preparedStatement.setString(2, secretWord);
+
+        ResultSet resultSet = preparedStatement.executeQuery();
+        User user = new User();
+        while (resultSet.next()) {
+            user = new User(
+                    resultSet.getInt("id"),
+                    resultSet.getString("name"),
+                    resultSet.getString("phone_number"),
+                    resultSet.getString("password"),
+                    resultSet.getString("secret_key"),
+                    resultSet.getBoolean("is_active")
+            );
+        }
+        preparedStatement.close();
+        connection.close();
+        return user;
+    }
+
+    @Override
+    public boolean unblockUser(String phoneNumber, String password) throws SQLException {
+        final Connection connection = getConnection();
+        final PreparedStatement preparedStatement
+                = connection.prepareStatement("UPDATE users SET is_active = TRUE, password = ? WHERE phone_number = ?");
+        preparedStatement.setString(1, password);
+        preparedStatement.setString(2, phoneNumber);
+
+        int rowsAffected = preparedStatement.executeUpdate();
+
+        preparedStatement.close();
+        connection.close();
+
+        return rowsAffected > 0;
     }
 }

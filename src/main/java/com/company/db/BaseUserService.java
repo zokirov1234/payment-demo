@@ -13,4 +13,9 @@ public interface BaseUserService {
 
     User getUserByPhoneAndPassword(String phoneNumber, String password) throws SQLException;
 
+    boolean blockUserByPhoneNumber(String phoneNumber) throws SQLException;
+
+    User getUserByPhoneNumberAndSecretWord(String phoneNumber, String secretWord) throws SQLException;
+
+    boolean unblockUser(String phoneNumber, String password) throws SQLException;
 }

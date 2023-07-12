@@ -18,4 +18,6 @@ public class User {
 
     private String secretWord;
 
+    private boolean isActive;
+
 }

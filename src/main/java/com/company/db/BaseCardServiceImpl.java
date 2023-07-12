@@ -12,127 +12,120 @@ public class BaseCardServiceImpl implements Base, BaseCardService {
     @Override
     public int createCard(CardDao cardDao) throws SQLException {
         int generatedId = -1;
-        final Connection connection = getConnection();
-        final PreparedStatement preparedStatement
-                = connection.prepareStatement("insert into cards(card_id, user_id, balance) values(?,?,?)", Statement.RETURN_GENERATED_KEYS);
 
-        preparedStatement.setString(1, cardDao.getCardId());
-        preparedStatement.setInt(2, cardDao.getUserId());
-        preparedStatement.setDouble(3, cardDao.getBalance());
-        int i = preparedStatement.executeUpdate();
+        try (Connection connection = getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("insert into cards(card_id, user_id, balance) values(?,?,?)", Statement.RETURN_GENERATED_KEYS)) {
 
-        if (i > 0) {
-            try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
-                    generatedId = generatedKeys.getInt(1);
+            preparedStatement.setString(1, cardDao.getCardId());
+            preparedStatement.setInt(2, cardDao.getUserId());
+            preparedStatement.setDouble(3, cardDao.getBalance());
+
+            int i = preparedStatement.executeUpdate();
+
+            if (i > 0) {
+                try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        generatedId = generatedKeys.getInt(1);
+                    }
                 }
             }
         }
 
-        preparedStatement.close();
-        connection.close();
         return generatedId;
     }
 
     @Override
     public List<Card> getCardByUserId(int userId) throws SQLException {
         List<Card> list = new ArrayList<>();
-        final Connection connection = getConnection();
-        final PreparedStatement preparedStatement
-                = connection.prepareStatement("select id,card_id, balance from cards where user_id = ?");
 
-        preparedStatement.setInt(1, userId);
-        ResultSet resultSet = preparedStatement.executeQuery();
+        try (Connection connection = getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("select id, card_id, balance from cards where user_id = ?")) {
 
-        while (resultSet.next()) {
-            Card card = new Card();
-            int id = resultSet.getInt("id");
-            String cardId = resultSet.getString("card_id");
-            double balance = resultSet.getDouble("balance");
-            card.setCardId(cardId);
-            card.setUserId(userId);
-            card.setBalance(balance);
-            card.setId(id);
-            list.add(card);
+            preparedStatement.setInt(1, userId);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    Card card = new Card();
+                    int id = resultSet.getInt("id");
+                    String cardId = resultSet.getString("card_id");
+                    double balance = resultSet.getDouble("balance");
+                    card.setCardId(cardId);
+                    card.setUserId(userId);
+                    card.setBalance(balance);
+                    card.setId(id);
+                    list.add(card);
+                }
+            }
         }
-        resultSet.close();
-        preparedStatement.close();
-        connection.close();
 
         return list;
     }
 
     @Override
     public Card getCardByCardId(String cardId) throws SQLException {
-        Card card = new Card();
-        final Connection connection = getConnection();
-        final PreparedStatement preparedStatement
-                = connection.prepareStatement("select id,card_id, balance,user_id from cards where card_id = ?");
+        Card card = null;
 
-        preparedStatement.setString(1, cardId);
-        ResultSet resultSet = preparedStatement.executeQuery();
+        try (Connection connection = getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("select id, card_id, balance, user_id from cards where card_id = ?")) {
 
-        while (resultSet.next()) {
-            int id = resultSet.getInt("id");
-            String cardIds = resultSet.getString("card_id");
-            double balance = resultSet.getDouble("balance");
-            int userId = resultSet.getInt("user_id");
-            card.setCardId(cardIds);
-            card.setUserId(userId);
-            card.setBalance(balance);
-            card.setId(id);
+            preparedStatement.setString(1, cardId);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    int id = resultSet.getInt("id");
+                    double balance = resultSet.getDouble("balance");
+                    int userId = resultSet.getInt("user_id");
+
+                    card = new Card();
+                    card.setCardId(cardId);
+                    card.setUserId(userId);
+                    card.setBalance(balance);
+                    card.setId(id);
+                }
+            }
         }
-        resultSet.close();
-        preparedStatement.close();
-        connection.close();
-
 
         return card;
     }
 
     @Override
     public Card getCardByCardIdAndUserId(String cardId, int userId) throws SQLException {
-        Card card = new Card();
-        final Connection connection = getConnection();
-        final PreparedStatement preparedStatement
-                = connection.prepareStatement("select id,card_id, balance,user_id from cards where card_id = ? and user_id  = ?");
+        Card card = null;
 
-        preparedStatement.setString(1, cardId);
-        preparedStatement.setInt(2,userId);
-        ResultSet resultSet = preparedStatement.executeQuery();
+        try (Connection connection = getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("select id, card_id, balance, user_id from cards where card_id = ? and user_id = ?")) {
 
-        while (resultSet.next()) {
-            int id = resultSet.getInt("id");
-            String cardIds = resultSet.getString("card_id");
-            double balance = resultSet.getDouble("balance");
-            userId = resultSet.getInt("user_id");
-            card.setCardId(cardIds);
-            card.setUserId(userId);
-            card.setBalance(balance);
-            card.setId(id);
+            preparedStatement.setString(1, cardId);
+            preparedStatement.setInt(2, userId);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    int id = resultSet.getInt("id");
+                    double balance = resultSet.getDouble("balance");
+
+                    card = new Card();
+                    card.setCardId(cardId);
+                    card.setUserId(userId);
+                    card.setBalance(balance);
+                    card.setId(id);
+                }
+            }
         }
-        resultSet.close();
-        preparedStatement.close();
-        connection.close();
-
 
         return card;
     }
 
     @Override
     public boolean changeBalanceByCardId(String cardId, double balance) throws SQLException {
+        try (Connection connection = getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("update cards set balance = ? where card_id = ?")) {
 
-        final Connection connection = getConnection();
-        final PreparedStatement preparedStatement
-                = connection.prepareStatement("update cards set balance = ? where card_id = ?");
+            preparedStatement.setDouble(1, balance);
+            preparedStatement.setString(2, cardId);
 
-        preparedStatement.setDouble(1, balance);
-        preparedStatement.setString(2, cardId);
+            int i = preparedStatement.executeUpdate();
 
-        int i = preparedStatement.executeUpdate();
-
-        return i > 0;
+            return i > 0;
+        }
     }
-
-
 }
