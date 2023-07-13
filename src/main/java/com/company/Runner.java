@@ -6,7 +6,7 @@ import com.company.service.*;
 
 import java.sql.SQLException;
 
-import static com.company.utils.Helper.scannerInt;
+import static com.company.utils.Helper.scannerStr;
 
 public class Runner {
 
@@ -29,18 +29,18 @@ public class Runner {
 
     public void initialMenu() throws SQLException {
         System.out.println("\t\t\t\t--- Welcome to the Payment System ---");
-        int option = -1;
+        String option = "";
 
-        while (option != 0) {
+        while (!option.equals("0")) {
             System.out.println("\n1. Login");
             System.out.println("2. Register");
             System.out.println("3. Call Center");
             System.out.println("0. Exit");
             System.out.print("Enter option: ");
-            option = scannerInt.nextInt();
+            option = scannerStr.nextLine();
             System.out.println();
             switch (option) {
-                case 1 -> {
+                case "1" -> {
                     System.out.println("\t\t\tLogin");
                     if (authService.doLogin()) {
                         try {
@@ -50,21 +50,21 @@ public class Runner {
                         }
                     }
                 }
-                case 2 -> {
+                case "2" -> {
                     System.out.println("\t\t\tRegister");
                     System.out.println(authService.doRegister());
                 }
-                case 3 -> callCenter();
-                case 0 -> System.out.println("Goodbye!");
+                case "3" -> callCenter();
+                case "0" -> System.out.println("Goodbye!");
                 default -> System.out.println("Invalid option!");
             }
         }
     }
 
     public void userMenu() throws SQLException {
-        int option = -1;
+        String option = "";
 
-        while (option != 0) {
+        while (!option.equals("0")) {
             System.out.println("\n\t\t\t\t--- Menu ---");
             System.out.println("1. Account Details");
             System.out.println("2. Balance");
@@ -75,23 +75,23 @@ public class Runner {
             System.out.println("7. Card Section");
             System.out.println("0. Exit");
             System.out.print("Enter option: ");
-            option = scannerInt.nextInt();
+            option = scannerStr.nextLine();
 
             switch (option) {
-                case 1 -> accountDetails();
-                case 2 -> {
+                case "1" -> accountDetails();
+                case "2" -> {
                     if (currentCard == null) {
                         System.out.println("There is no card selected.");
                         break;
                     }
                     System.out.println("Balance: " + currentCard.getBalance());
                 }
-                case 3 -> transactionService.transfer();
-                case 4 -> cardService.converter();
-                case 5 -> cardService.withdraw();
-                case 6 -> {
-                    int option1 = -1;
-                    while (option1 != 0) {
+                case "3" -> transactionService.transfer();
+                case "4" -> cardService.converter();
+                case "5" -> cardService.withdraw();
+                case "6" -> {
+                    String option1 = "";
+                    while (!option1.equals("0")) {
                         System.out.println("\n\t\t\t\t--- History ---");
                         System.out.println("1. Show All of My Cards' History");
                         System.out.println("2. Show Current Card's History");
@@ -100,21 +100,21 @@ public class Runner {
                         System.out.println("5. Show Transactions");
                         System.out.println("0. Exit");
                         System.out.print("Enter option: ");
-                        option1 = scannerInt.nextInt();
+                        option1 = scannerStr.nextLine();
 
                         switch (option1) {
-                            case 1 -> historyService.getHistory();
-                            case 2 -> historyService.showCurrentCardHistory();
-                            case 3 -> historyService.showExpenses();
-                            case 4 -> historyService.showIncomes();
-                            case 5 -> historyService.showTransactions();
+                            case "1" -> historyService.getHistory();
+                            case "2" -> historyService.showCurrentCardHistory();
+                            case "3" -> historyService.showExpenses();
+                            case "4" -> historyService.showIncomes();
+                            case "5" -> historyService.showTransactions();
                             default -> System.out.println("Invalid option!");
                         }
                     }
                 }
-                case 7 -> {
-                    int opt = -1;
-                    while (opt != 0) {
+                case "7" -> {
+                    String opt = "";
+                    while (!opt.equals("0")) {
                         System.out.println("\n\t\t\t\t--- Card Menu ---");
                         System.out.println("1. My Cards");
                         System.out.println("2. Create Card");
@@ -122,19 +122,19 @@ public class Runner {
                         System.out.println("4. Get Current Card");
                         System.out.println("0. Exit");
                         System.out.print("Enter option: ");
-                        opt = scannerInt.nextInt();
+                        opt = scannerStr.nextLine();
 
                         switch (opt) {
-                            case 1 -> cardService.getMyCards(currentUser.getId());
-                            case 2 -> {
+                            case "1" -> cardService.getMyCards(currentUser.getId());
+                            case "2" -> {
                                 Card card = cardService.generateCard();
                                 if (card != null) {
                                     System.out.println("You have successfully created your card.");
                                     currentCard = card;
                                 }
                             }
-                            case 3 -> cardService.changeCard();
-                            case 4 -> {
+                            case "3" -> cardService.changeCard();
+                            case "4" -> {
                                 if (currentCard == null) {
                                     System.out.println("There is no card.");
                                     break;
@@ -146,7 +146,7 @@ public class Runner {
                         }
                     }
                 }
-                case 0 -> {
+                case "0" -> {
                     currentCard = null;
                     currentUser = null;
                 }
@@ -158,8 +158,8 @@ public class Runner {
     public void callCenter() throws SQLException {
         System.out.println("\n\t\t\t\t--- Welcome to the Call Center ---");
         System.out.print("Enter 1 to recover your account: ");
-        int option = scannerInt.nextInt();
-        if (option == 1) {
+        String option = scannerStr.nextLine();
+        if (option.equals("1")) {
             userService.callCenter();
             return;
         }
@@ -168,18 +168,19 @@ public class Runner {
 
     public void accountDetails() throws SQLException {
 
-        int option = -1;
+        String option = "";
 
-        while (option!=0){
+        while (!option.equals("0")) {
             System.out.println("\n\t\t\t--- My account ---");
             System.out.println("1.Account details");
             System.out.println("2.Change password");
+            System.out.println("0.Exit");
             System.out.print("Enter option : ");
-            option = scannerInt.nextInt();
+            option = scannerStr.nextLine();
 
             switch (option) {
-                case 1 -> userService.getMyAccountDetails();
-                case 2 -> userService.changePassword();
+                case "1" -> userService.getMyAccountDetails();
+                case "2" -> userService.changePassword();
                 default -> System.out.println("Invalid option!");
             }
         }

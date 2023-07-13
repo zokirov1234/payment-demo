@@ -12,7 +12,6 @@ import com.company.model.entity.Card;
 import java.sql.SQLException;
 
 import static com.company.Runner.currentCard;
-import static com.company.Runner.currentUser;
 import static com.company.utils.Helper.scannerStr;
 
 public class TransactionServiceImpl implements TransactionService {

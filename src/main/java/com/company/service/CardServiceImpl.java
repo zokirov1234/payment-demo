@@ -57,19 +57,12 @@ public class CardServiceImpl implements CardService {
 
     @Override
     public void getMyCards(int userId) throws SQLException {
-        List<Card> cardList = baseCardService.getCardByUserId(userId);
-        double sumBalance = 0;
 
         System.out.println("\n\t\t--- Cards ---");
-        for (Card card : cardList) {
-            sumBalance += card.getBalance();
-            System.out.println("---------------------");
-            System.out.println("Card ID: " + card.getCardId());
-            System.out.println("Balance: " + card.getBalance());
-            System.out.println("---------------------");
-        }
+        List<Card> cardList = baseCardService.getCardByUserId(userId);
+        showCards(cardList);
         System.out.println("Number of cards: " + cardList.size());
-        System.out.println("Sum of your balance: " + sumBalance);
+
     }
 
     @Override
@@ -77,10 +70,11 @@ public class CardServiceImpl implements CardService {
         if (currentCard != null) {
             System.out.println("Current card ID: " + currentCard.getCardId());
         }
+        showCards(baseCardService.getCardByUserId(currentUser.getId()));
         System.out.print("Enter your card ID: ");
-        String cardId = scannerStr.nextLine();
+        String cardId = scannerStr.nextLine().trim();
         Card card = baseCardService.getCardByCardIdAndUserId(cardId, currentUser.getId());
-        if (card.getCardId() == null) {
+        if (card == null || card.getCardId() == null) {
             System.out.println("Invalid card ID");
             return;
         }
@@ -89,7 +83,7 @@ public class CardServiceImpl implements CardService {
     }
 
     @Override
-    public void converter() throws SQLException {
+    public void converter() {
         System.out.println("\n\t\t\t\t--- Converter ---");
 
         if (currentCard == null || currentCard.getCardId() == null) {
@@ -98,7 +92,7 @@ public class CardServiceImpl implements CardService {
         }
 
         System.out.println("Your money in foreign currencies");
-        System.out.println("Your money in ruble: " + (currentCard.getBalance() / 126.62));
+        System.out.println("Your money in Ruble: " + (currentCard.getBalance() / 126.62));
         System.out.println("Your money in USD: " + (currentCard.getBalance() / 11505.72));
         System.out.println("Your money in Euro: " + (currentCard.getBalance() / 12672.23));
     }
@@ -150,5 +144,14 @@ public class CardServiceImpl implements CardService {
         Random random = new Random();
         int randomNumber = random.nextInt(9001) + 999;
         return String.valueOf(randomNumber);
+    }
+
+    private void showCards(List<Card> cardList) {
+        for (Card card : cardList) {
+            System.out.println("---------------------");
+            System.out.println("Card ID: " + card.getCardId());
+            System.out.println("Balance: " + card.getBalance());
+            System.out.println("---------------------");
+        }
     }
 }
